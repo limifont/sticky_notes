@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.5/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.5/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.2/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/js/materialize.min.js"></script>
+    <link rel='stylesheet' href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/css/materialize.min.css" />
+    <link rel="stylesheet" type="text/css" href="index.css">
+  </head>
+  <body>
+    <div id='content' class='container'></div>
+      <script type='text/babel'>
+        class List extends React.Component {
+          constructor(props) {
+            super(props);
+            this.state = { notes: [], nextId: 0 };
+            this.addNote = this.addNote.bind(this);
+            this.getNotes = this.getNotes.bind(this);
+          }
+
+          addNote(e) {
+            e.preventDefault();
+            let notes = [...this.state.notes, {name: this.refs.name.value, noteCat: this.options.defaultValue , id: this.state.nextId } ];
+            this.refs.name.value = null;
+            this.setState({notes, nextId: ++this.state.nextId});
+          }
+
+          getNotes() {
+            //loop notes in STATE
+            //render JSX for each item
+            let notes = this.state.notes.map(note => {
+              return(<Note key={`note-${note.id}`} name={note.name} complete={note.complete} id={note.id} />)
+            });
+            return notes;
+          }
+
+          render() {
+            return(
+              <div className='center'>
+                <h1>{this.props.title}</h1>
+                <form onSubmit={this.addNote}>
+                  <textarea type='text' rows='4' cols='50' required placeholder='Sticky Note' ref='name' maxLength="250" />
+                  <div class="input-field col s12">
+                    <select className='browser-default'>
+                      <option value="" disabled selected>Choose a category</option>
+                      <option value="1">Option 1</option>
+                      <option value="2">Option 2</option>
+                      <option value="3">Option 3</option>
+                    </select>
+                  </div>
+                  <input type='submit' className='btn' value='Add Note' />
+                </form>
+                <br />
+                <div className='row'>
+                  {this.getNotes()}
+                </div>
+              </div>
+            )
+          }
+        }
+
+        class Note extends React.Component {
+          constructor(props) {
+            super(props);
+            this.state = { checked: props.noteCat, textColor: 'white-text' };
+            this.toggleColor = this.toggleColor.bind(this);
+          }
+
+          toggleColor() {
+            let checked = !this.state.checked;
+            let textColor = {};
+            if(checked) {
+              textColor = 'yellow-text';
+            } else {
+              textColor = 'white-text';
+            }
+            this.setState({ checked, textColor});
+          }
+
+          render() {
+            let id=`complete-${this.props.id}`;
+            let color = this.state.checked ?  'blue lighten-2' : 'yellow lighten-3';
+            return ( 
+              <div className="col s3">
+                <div className={`card-panel ${color}`}>
+                  <span className={ this.state.textColor } >
+                    {this.props.name}
+                  </span>
+                  <br />
+                  <div class="input-field col s12">
+                    <select className='browser-default' onChange={this.toggleColor} defaultChecked={this.state.checked}>
+                      <option value="" disabled selected>Choose a category</option>
+                      <option value="1">Option 1</option>
+                      <option value="2">Option 2</option>
+                      <option value="3">Option 3</option>
+                    </select>
+                  </div>
+                  <input onChange={this.toggleColor} type='checkbox' id={id} defaultChecked={this.state.checked} />
+                  <label htmlFor={id}></label>
+                </div>
+              </div>
+            )
+          }
+        }
+        ReactDOM.render(<List title='Sticky Notes' />, document.getElementById('content'));
+      </script>
+  </body>
+</html>
